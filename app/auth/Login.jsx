@@ -1,22 +1,42 @@
-import { useState } from "react";
+import { useRouter, Link } from "expo-router";
+import { useContext, useState } from "react";
 import {
   StyleSheet,
   Text,
   TextInput,
   View,
   TouchableOpacity,
+  Alert,
 } from "react-native";
+import { login } from "../src/utils/api";
+import { AuthContext } from "../context/AuthContext";
 
 export default function Login() {
   const [username, onChangeUsername] = useState("");
   const [password, onChangePassword] = useState("");
+  const { onLogin } = useContext(AuthContext);
+  const router = useRouter();
 
-  const onSubmit = () => {
-    if (username === "" || password === "") {
-      alert("Username/password tidak boleh kosong!");
+  const context = useContext(AuthContext);
+
+  console.log("AuthContext:", context);
+
+  const handleSubmitLogin = () => {
+    // Validation form
+    if (username === "") {
+      Alert.alert("Username is required");
       return;
     }
-    alert(`Username:${username}, Password: ${password}`);
+    if (password === "") {
+      Alert.alert("Password is required");
+      return;
+    }
+    onLogin();
+    // const { error, message } = await login({ username, password });
+    // Alert.alert(message);
+    // if (!error) {
+    // router.push("/main/Home");
+    // }
   };
 
   return (
@@ -47,8 +67,12 @@ export default function Login() {
             placeholder="Your password"
           />
         </View>
-        <Text style={style.forgotPassword}>Forgot password?</Text>
-        <TouchableOpacity style={style.submitButton} onPress={onSubmit}>
+        <Link href="/auth/ForgotPassword" style={style.forgotPassword}>
+          Forgot password?
+        </Link>
+        <TouchableOpacity
+          style={style.submitButton}
+          onPress={handleSubmitLogin}>
           <Text style={style.textSubmit}>Login</Text>
         </TouchableOpacity>
         <View style={style.wrapperOptionalLogin}>
