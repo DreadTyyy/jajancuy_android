@@ -1,7 +1,9 @@
-import { StyleSheet, Text, View } from "react-native";
-import { Link } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 
 export default function EnterScreen() {
+  const navigation = useNavigation();
+
   return (
     <View>
       <View style={style.containerTitle}>
@@ -11,12 +13,16 @@ export default function EnterScreen() {
         </Text>
       </View>
       <View style={style.container}>
-        <Link href="/auth/Login" style={style.button}>
-          Masuk
-        </Link>
-        <Link href="/auth/Register" style={style.button}>
-          Daftar
-        </Link>
+        <TouchableOpacity
+          onPress={() => navigation.navigate("Login")}
+          style={style.button}>
+          <Text style={style.textButton}>Masuk</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => navigation.navigate("Register")}
+          style={style.button}>
+          <Text style={style.textButton}>Daftar</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -53,6 +59,8 @@ const style = StyleSheet.create({
     padding: 16,
     backgroundColor: "#FF680D",
     borderRadius: 12,
+  },
+  textButton: {
     color: "#FFFFFF",
     textAlign: "center",
     fontWeight: 500,

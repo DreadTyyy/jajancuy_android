@@ -33,20 +33,26 @@ const register = async ({
     return { error: true, message: "An error occured during registration" };
   }
 };
-const login = async ({ username, password }) => {
+const login = async ({ email, password }) => {
   try {
-    const response = await fetch(`${BASE_URL}/login`, {
+    const response = await fetch(`${BASE_URL}/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "Application/Json",
       },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ email, password }),
     });
-    const responseJson = response.json();
-    if (responseJson.status !== "Success") {
-      return { error: true, message: "Registration failed!" };
+    const statusCode = response.status;
+    const responseJson = await response.json();
+
+    if (statusCode === 200) {
+      return {
+        error: false,
+        message: responseJson.message,
+        tokenAccess: responseJson.TokenAccess,
+      };
     }
-    return { error: false, message: "Registration Success!" };
+    return { error: true, message: `Failed: ${responseJson.non_field_errors}` };
   } catch (error) {
     return { error: true, message: "An error occured during registration" };
   }
@@ -54,18 +60,21 @@ const login = async ({ username, password }) => {
 
 const forgotPassword = async ({ email }) => {
   try {
-    const response = await fetch(`${BASE_URL}/login`, {
+    const response = await fetch(`${BASE_URL}/forgot-password`, {
       method: "POST",
       headers: {
         "Content-Type": "Application/Json",
       },
       body: JSON.stringify({ email }),
     });
-    const responseJson = response.json();
-    if (responseJson.status !== "Success") {
-      return { error: true, message: "Send notification failed!" };
+    const statusCode = response.status;
+    const responseJson = await response.json();
+    console.log(responseJson);
+
+    if (statusCode === 200) {
+      return { error: false, message: responseJson.message };
     }
-    return { error: false, message: "Send notification Success!" };
+    return { error: true, message: responseJson.email[0] };
   } catch (error) {
     return { error: true, message: "An error occured during registration" };
   }

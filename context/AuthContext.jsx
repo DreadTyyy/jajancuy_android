@@ -1,4 +1,5 @@
 import { createContext, useState } from "react";
+import { login } from "../utils/api";
 
 const AuthContext = createContext();
 
@@ -6,10 +7,14 @@ const AuthProvider = ({ children }) => {
   const [userToken, setUserToken] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const onLogin = () => {
+  const onLogin = async ({ email, password }) => {
     setIsLoading(true);
-    setUserToken("fdsafsdfa");
+    const { error, message, tokenAccess } = await login({ email, password });
+    if (!error) {
+      setUserToken(tokenAccess);
+    }
     setIsLoading(false);
+    return { error, message };
   };
 
   const onLogout = () => {

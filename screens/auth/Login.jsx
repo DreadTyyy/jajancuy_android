@@ -1,4 +1,3 @@
-import { useRouter, Link } from "expo-router";
 import { useContext, useState } from "react";
 import {
   StyleSheet,
@@ -7,53 +6,63 @@ import {
   View,
   TouchableOpacity,
   Alert,
+  SafeAreaView,
+  Platform,
+  StatusBar,
 } from "react-native";
-import { login } from "../src/utils/api";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "../../context/AuthContext";
+import { useNavigation } from "@react-navigation/native";
 
 export default function Login() {
-  const [username, onChangeUsername] = useState("");
+  const [email, onChangeEmail] = useState("");
   const [password, onChangePassword] = useState("");
   const { onLogin } = useContext(AuthContext);
-  const router = useRouter();
+  const navigation = useNavigation();
 
   const context = useContext(AuthContext);
 
   console.log("AuthContext:", context);
 
-  const handleSubmitLogin = () => {
+  const handleSubmitLogin = async () => {
     // Validation form
-    if (username === "") {
-      Alert.alert("Username is required");
+    if (email === "" || !email.includes("@")) {
+      Alert.alert("Email is required");
       return;
     }
     if (password === "") {
       Alert.alert("Password is required");
       return;
     }
-    onLogin();
-    // const { error, message } = await login({ username, password });
-    // Alert.alert(message);
-    // if (!error) {
-    // router.push("/main/Home");
-    // }
+    const { error, message } = await onLogin({ email, password });
+    if (error) {
+      Alert.alert(message);
+    }
   };
 
   return (
-    <View>
+    <SafeAreaView
+      style={{
+        flex: 1,
+        paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+      }}>
       <View style={style.wrapperTitle}>
+        <Text
+          style={{ color: "#FFFFFF", paddingTop: 24 }}
+          onPress={() => navigation.navigate("Home")}>
+          Back to Home Screen
+        </Text>
         <Text style={style.title}>Sign in to your Account</Text>
       </View>
       <View style={style.container}>
         <View style={{ marginBottom: 16 }}>
           <Text style={style.label}>Email</Text>
           <TextInput
-            id="username"
+            id="email"
             style={style.input}
-            value={username}
+            value={email}
             inputMode="email"
-            onChangeText={onChangeUsername}
-            placeholder="Jhon28"
+            onChangeText={onChangeEmail}
+            placeholder="Enter your email"
           />
         </View>
         <View style={{ marginBottom: 8 }}>
@@ -64,12 +73,13 @@ export default function Login() {
             value={password}
             onChangeText={onChangePassword}
             secureTextEntry
-            placeholder="Your password"
+            autoCapitalize="none"
+            placeholder="Enter your password"
           />
         </View>
-        <Link href="/auth/ForgotPassword" style={style.forgotPassword}>
-          Forgot password?
-        </Link>
+        <TouchableOpacity onPress={() => navigation.navigate("ForgotPassword")}>
+          <Text style={style.forgotPassword}>Forgot password?</Text>
+        </TouchableOpacity>
         <TouchableOpacity
           style={style.submitButton}
           onPress={handleSubmitLogin}>
@@ -86,7 +96,7 @@ export default function Login() {
           <Text style={style.textOptionalLogin}>Sign In with SSO</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -98,7 +108,7 @@ const style = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 32,
     display: "flex",
-    justifyContent: "flex-end",
+    justifyContent: "space-between",
     height: 240,
     backgroundColor: "#FF680D",
   },
@@ -123,10 +133,10 @@ const style = StyleSheet.create({
     borderRadius: 12,
   },
   forgotPassword: {
+    textAlign: "right",
     fontSize: 16,
     fontWeight: 500,
     color: "#FF680D",
-    textAlign: "right",
     textDecorationLine: "underline",
   },
   submitButton: {

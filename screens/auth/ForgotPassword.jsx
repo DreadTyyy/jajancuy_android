@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useRouter } from "expo-router";
 import {
   StyleSheet,
   View,
@@ -8,19 +7,25 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
-import { forgotPassword } from "../src/utils/api";
+import { forgotPassword } from "../../utils/api";
+import { useNavigation } from "@react-navigation/native";
 
 export default function ForgotPassword() {
   const [email, onChangeEmail] = useState("");
-  const route = useRouter();
+  const [notification, setNotification] = useState(false);
+  const navigation = useNavigation();
 
   const handleSubmitButton = async () => {
     if (email === "" || !email.includes("@")) {
       Alert.alert("Email is required!");
     }
-    const { error } = await forgotPassword({ email });
+    const { error, message } = await forgotPassword({ email });
+    Alert.alert(message);
     if (!error) {
-      Alert.alert("Success");
+      setNotification(true);
+    }
+    if (notification) {
+      setNotification(false);
     }
   };
 
@@ -33,7 +38,7 @@ export default function ForgotPassword() {
         </Text>
       </View>
       <View style={style.container}>
-        <View style={{ marginBotton: 8 }}>
+        <View style={{ marginBottom: 8 }}>
           <Text style={style.label}>Email</Text>
           <TextInput
             id="email"
@@ -44,13 +49,27 @@ export default function ForgotPassword() {
             placeholder="Enter your email"
           />
         </View>
+        {notification && (
+          <View style={style.notification}>
+            <Text style={{ marginRight: 2 }}>Didn't receive the email?</Text>
+            <Text
+              onPress={handleSubmitButton}
+              style={{
+                textDecorationLine: "underline",
+                color: "#FF680D",
+                fontWeight: 500,
+              }}>
+              Resend email
+            </Text>
+          </View>
+        )}
         <TouchableOpacity
           style={style.submitButton}
           onPress={handleSubmitButton}>
-          <Text style={style.textSubmit}>Kirim</Text>
+          <Text style={style.textSubmit}>Send</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => route.push("/auth/Login")}
+          onPress={() => navigation.navigate("Login")}
           style={style.blankButton}>
           <Text style={{ textAlign: "center" }}>Back to login</Text>
         </TouchableOpacity>
@@ -94,6 +113,12 @@ const style = StyleSheet.create({
     borderStyle: "solid",
     borderColor: "rgba(0,0,0,0.3)",
     borderRadius: 12,
+  },
+  notification: {
+    flexDirection: "row",
+    marginTop: 8,
+    justifyContent: "flex-end",
+    alignItems: "center",
   },
   submitButton: {
     marginTop: 16,
